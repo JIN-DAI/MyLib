@@ -1,0 +1,88 @@
+% function VisualizProteinContactMap()
+
+%% step 1: change the path to your directory where you save the package
+cd .
+
+currentFolder = pwd
+addpath( genpath( currentFolder ) )
+System = '\';
+if isempty( find(currentFolder,'/') ) == 0, System = '/'; end
+
+
+%% step 2: calculate the pairwise distances between amino acid positions, see matix: AveragedDistanceMatrix
+load( [currentFolder System 'DisMatrix_Multi_Protease_Shortest_CA.mat'],'AveragedDistanceMatrix');
+
+Dim = 99; %% the number of amino acids in the protein.
+AngstomCutoff = 8; %% the cutoff of Euclidean distance, 8 angstoms as default.
+
+%% step 3: visualize the protein contact map: 
+
+        X = zeros(1,Dim*3); Y = zeros(Dim*3); Z = 400*ones(Dim); Index = 0;
+        for n = 1:Dim
+            for m = n+1:Dim
+                %% fill in the empty values in the middle of proteins
+                if n > 20 && n < Dim-20 && m > 20 && m < Dim-20 && AveragedDistanceMatrix( n,m ) < 0.01
+                   Pos = find(AveragedDistanceMatrix(n,1:m) > 1,1,'last');
+                   AveragedDistanceMatrix( n,m ) = AveragedDistanceMatrix(n,Pos);
+                end
+                Z( n,m ) = 0.2*AveragedDistanceMatrix( n,m );
+                if AveragedDistanceMatrix(n,m) <= AngstomCutoff
+                    Z( n,m ) = 0.1*floor(AveragedDistanceMatrix(n,m)/2);
+                end
+            end
+            Z(n,n) = 2;
+        end
+        for n = 1:Dim
+            for m = 1:n-1
+                %Z( n,m ) = AveragedDistanceMatrix( n,m );
+                if AveragedDistanceMatrix(n,m) > AngstomCutoff
+                   Z(n,m) = -1;
+                elseif n+1<=Dim && 0<n-1 && m+1<=Dim && 0<m-1 && ...
+                       ~( AveragedDistanceMatrix(n,m) <= AngstomCutoff && AveragedDistanceMatrix(n-1,m) <= AngstomCutoff && AveragedDistanceMatrix(n,m-1) <= AngstomCutoff && ...
+                       AveragedDistanceMatrix(n+1,m) <= AngstomCutoff && AveragedDistanceMatrix(n,m+1) <= AngstomCutoff ) && AveragedDistanceMatrix(n+1,m+1) <= AngstomCutoff && ...
+                       AveragedDistanceMatrix(n-1,m-1) <= AngstomCutoff && AveragedDistanceMatrix(n-1,m) <= AngstomCutoff && AveragedDistanceMatrix(n,m-1) <= AngstomCutoff 
+                   Z(n,m) = 0.01;
+                end
+            end
+        end
+        MaxDist = max(max(AveragedDistanceMatrix));
+        for i=1:ceil(MaxDist/10)+2
+            V(i)=(i-1)*2; 
+        end
+        
+hFig = figure(1);
+set(hFig, 'Position', [0 0 1600 1600])
+subaxis(1,1,1, 'Spacing', 0.05, 'Padding', 0.0, 'Margin', 0.048);
+        h = contourf( 1:Dim,1:Dim,Z,V );
+        Layer = 128;
+        %ColorMatrix = colormap(flipud(hot(4)))
+        %ColorMatrix = colormap(jet(Layer));
+        ColorMatrix = colormap(flipud(hot(Layer)));
+        %ColorMatrix = colormap(hsv(Layer));
+        ColorMatrix((Layer-1):Layer,:) = ones(2,3);
+        ColorMatrix(1,:) = [0.3 0.6 0.8];
+        %ColorMatrix(5,:) = ones(1,3);
+        
+        colormap(ColorMatrix); 
+        LocalSumDist = zeros(1,Dim);
+        for p = 1:Dim
+            LocalSumDist(p) = sum(AveragedDistanceMatrix(:,p));
+        end        
+        DimLimit = [ 1 Dim ];
+        if LocalSumDist(1)==0,DimLimit(1)=find(LocalSumDist~=0,1); end
+        if LocalSumDist(Dim)==0,DimLimit(2)=find(LocalSumDist~=0,1,'last'); end
+ 
+        total = floor(Dim/10);
+         set( gca,'XTick',[1 10:10:total*10 Dim],'fontsize',12,'FontWeight','bold');
+         set( gca,'YTick',[1 10:10:total*10 Dim],'fontsize',12,'FontWeight','bold');
+
+        %DimLimit(2) = 110;
+        xlim([DimLimit(1),DimLimit(2)]); 
+        DimLimit
+        ylim([DimLimit(1),DimLimit(2)]);       
+      
+
+set(gcf,'PaperUnits','inches','PaperPosition',[0 0 6 6])
+print( [currentFolder System 'ProteinContactMap.eps'],'-depsc2','-r350');
+print( [currentFolder System 'ProteinContactMap.png'],'-dpng','-r750');
+
