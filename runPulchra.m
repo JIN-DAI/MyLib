@@ -3,8 +3,15 @@ function runPulchra(FileName, Option, Pulchra)
 
 %%
 if nargin < 3 || isempty(Pulchra)
+    workDir = {fullfile('D:', 'Programs', 'MatlabCodes'), fullfile('F:', 'MyProgram', 'MyMatlab')};
+    indexDir = cellfun(@(x) exist(x, 'dir')~=0, workDir);
+    if sum(indexDir) < 1
+        error('Work dir does not exist!');
+    elseif sum(indexDir) > 1
+        error('Multiple work dirs exist!');
+    end
     % pulchra304 @MyResource
-    Pulchra.home = fullfile('F:', 'MyProgram', 'MyMatlab', 'MyResource', 'pulchra304');
+    Pulchra.home = fullfile(workDir{indexDir}, 'MyResource', 'pulchra304');
     % --executable file's location
     Pulchra.executable = fullfile(Pulchra.home, 'bin');
     switch computer('arch')
