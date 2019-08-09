@@ -7,6 +7,7 @@ function [rmsd,dist,XX,YYQ,T,Q] = superimpose(X,Y,f,Width,Color,RotationMatrixSw
 % Width: linewidth for plotting curves
 % Color: linecolor for plotting curves
 % RotationsMatrixSwitch: true - determinant of Q is always positive, false - determinant of Q can be negative
+% NOTE: Bug in this parameter!
 % ---OUTPUT---
 % rmsd: their distance
 % dist: distance of corresponding point
