@@ -82,6 +82,8 @@ function [x,y,z]=tubeplot(curve,r,n,ct)
   z=squeeze(xyz(3,:,:));
   
   %... and plot:
-  if nargout<3, s=surf(x,y,z);%s.EdgeColor = 'none';
+  if nargout<3
+      s = surf(x,y,z);
+      %s.EdgeColor = 'none';
   end
   
