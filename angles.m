@@ -97,7 +97,7 @@ if norm(R(:,1)-R(:,end))>1e-1 % taken as open curve
     phi=ones(1,n-2); % torsion
     % calculate tangent vectors and bond length
     T=diff(R,1,2);
-    for id=1:length(T)
+    for id=1:size(T,2)
         vn(id)=norm(T(:,id));
         T(:,id)=T(:,id)/vn(id); % normalization
     end
@@ -105,7 +105,7 @@ if norm(R(:,1)-R(:,end))>1e-1 % taken as open curve
     B(:,1)=rand(3,1);
     N(:,1)=rand(3,1);
     theta(1)=rand;    
-    for id=2:length(T)
+    for id=2:size(T,2)
         % calculate bionormal vectors and normal vectors
         B(:,id)=cross(T(:,id-1),T(:,id));
         B(:,id)=B(:,id)/norm(B(:,id)); % normalization
