@@ -6,7 +6,11 @@ function FigureHandle = CreateFigure(FigureName, FigurePosition)
 if nargin < 2
     FigurePosition = [100 50 1200 650];
 end
-FigureHandle = figure('Position', FigurePosition);
+if ischar(FigurePosition) && strcmpi(FigurePosition, 'full')
+    FigureHandle = figure('Units','Normalized','Outerposition',[0 0 1 1]);
+else
+    FigureHandle = figure('Position', FigurePosition);
+end
 set(gcf, 'Name', FigureName, 'FileName', FigureName);
 set(gcf, 'NumberTitle', 'off', 'Color', 'w', 'ToolBar', 'none');
 
