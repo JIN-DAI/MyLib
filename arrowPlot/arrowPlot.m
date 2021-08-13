@@ -63,6 +63,12 @@ function H = arrowPlot(X, Y, varargin)
         r = Options.ratio(2) / Options.ratio(1);
     end
     
+    %%%
+    if isfield(useroptions, 'LineStyle')
+        set(h, 'LineStyle', useroptions.LineStyle);
+    end
+    
+    
     n_X = length(X);
     journey = 0;
     for i = 1 : n_X-1
@@ -100,7 +106,7 @@ function H = arrowPlot(X, Y, varargin)
     if isequal(Options.ratio, 'equal')
         axis equal;
     end
-    hold off;
+    %hold off; %%%
 end
 
 function Options = creat_options(user_choice, default_choice_struct)
